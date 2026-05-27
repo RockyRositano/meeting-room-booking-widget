@@ -1,0 +1,29 @@
+datasource db {
+  provider = "postgresql" // Or "sqlite" if you want to develop locally without a cloud DB first
+  
+}
+
+generator client {
+  provider = "prisma-client"
+}
+
+model Room {
+  id        String    @id @default(uuid())
+  name      String    @unique
+  capacity  Int
+  bookings  Booking[]
+  createdAt DateTime  @default(now())
+}
+
+model Booking {
+  id          String   @id @default(uuid())
+  title       String
+  startTime   DateTime
+  endTime     DateTime
+  roomId      String
+  room        Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  bookedBy    String   // Can store user email or name for simplicity
+  createdAt   DateTime @default(now())
+
+  @@index([startTime, endTime]) // Speeds up queries for finding "today's bookings"
+}
